@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: practica-docker-h2
+  name: practica-docker-h2
+  namespace: default
+spec:
+  replicas: 2
+  minReadySeconds: 45
+  selector:
+    matchLabels:
+      app: practica-docker-h2
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: practica-docker-h2
+    spec:
+      containers:
+      - image: practica-docker-h2:v1
+        imagePullPolicy: IfNotPresent
+        name: practica-docker-h2
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels: #PODS
+    app: practica-docker-h2
+  name: practica-docker-h2
+  namespace: default
+spec:
+  ports:
+  - nodePort: 30702
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: practica-docker-h2
+  sessionAffinity: ClientIP
+  type: LoadBalancer
